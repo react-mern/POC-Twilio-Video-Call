@@ -1,10 +1,11 @@
-import './App.css'
+import React from "react"
+import Navbar from "./components/Navbar/Navbar"
 
-function App() {
+const App: React.FC = () => {
  
   return (
     <>
-      
+      <Navbar />
     </>
   )
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Formik, Field, ErrorMessage } from "formik";
 import {
-  FormWrapper,
+    FormWrapper,
   FormInputWrapper,
   FormLabel,
   FormHeading,
@@ -10,7 +10,14 @@ import {
 import { validationSchema } from "../../constants/formValidation";
 import { ErrorStyle } from "../../styled/Error.style";
 
-const Form: React.FC = (handleSubmit) => {
+const Form:React.FC = ({
+  username,
+  handleUsernameChange,
+  roomName,
+  handleRoomNameChange,
+  handleSubmit,
+  connecting,
+}) => {
   return (
     <Formik
       initialValues={{ username: "", roomName: "" }}
@@ -26,7 +33,9 @@ const Form: React.FC = (handleSubmit) => {
             id="username"
             placeholder="Your name"
             name="username"
-            required
+            value={username}
+            onChange={handleUsernameChange}
+            readOnly={connecting}
           />
           <ErrorMessage name="username" component={ErrorStyle} />
         </FormInputWrapper>
@@ -38,15 +47,20 @@ const Form: React.FC = (handleSubmit) => {
             id="roomName"
             placeholder="Room name"
             name="roomName"
-            required
+            value={roomName}
+            onChange={handleRoomNameChange}
+            readOnly={connecting}
           />
           <ErrorMessage name="roomName" component={ErrorStyle} />
         </FormInputWrapper>
 
-        <StyledButton type="submit">Join</StyledButton>
+        <StyledButton type="submit" disabled={connecting}>
+          {connecting ? "Connecting" : "Join"}
+        </StyledButton>
       </FormWrapper>
     </Formik>
   );
 };
 
 export default Form;
+

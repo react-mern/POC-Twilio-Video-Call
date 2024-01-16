@@ -34,6 +34,10 @@ const VideoChatModule = () => {
         name: roomName,
       })
         .then((room) => {
+<<<<<<< Updated upstream
+=======
+          console.log(room);
+>>>>>>> Stashed changes
           setConnecting(false);
           setRoom(room);
         })

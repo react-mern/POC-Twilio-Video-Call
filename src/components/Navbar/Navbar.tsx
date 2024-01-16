@@ -1,5 +1,6 @@
 import React from 'react'
 import {NavContainer, Header, Heading, VideoContainer} from "./Navbar.style"
+import VideoCallModule from '../VideoCallModule/VideoCallModule';
 
 const Navbar: React.FC = () => {
   return (
@@ -11,7 +12,7 @@ const Navbar: React.FC = () => {
                 </Heading>
             </Header>
             <VideoContainer>
-
+              <VideoCallModule />
             </VideoContainer>
         </NavContainer>
     </>

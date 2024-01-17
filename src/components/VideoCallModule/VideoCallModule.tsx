@@ -1,33 +1,52 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useCallback, useEffect } from "react";
-import Video from "twilio-video";
-import Form from "../Form/Form";
-import Room from "../Room/Room";
 
-const VideoCallModule: React.FC = () => {
-  const [username, setUsername] = useState<string>("");
-  const [roomName, setRoomName] = useState<string>("");
-  const [room, setRoom] = useState<string>(""); // Replace 'any' with the actual type of your room object
-  const [connecting, setConnecting] = useState<boolean>(false);
+import React, { useState, useCallback, useEffect } from "react";
+import Video, { Room, ConnectOptions, LocalTrack, RemoteTrack, LocalAudioTrack, LocalVideoTrack } from "twilio-video";
+import Form from "../Form/Form";
+import RoomComponent from "../Room/Room"; 
+
+interface VideoCallModuleProps {}
+
+interface TrackPublication {
+  track: LocalTrack | RemoteTrack | LocalAudioTrack | LocalVideoTrack ;
+}
+
+interface VideoCallModuleState {
+  username: string;
+  roomName: string;
+  room: Room | null;
+  connecting: boolean;
+}
+
+interface CustomBeforeUnloadEvent extends Event {
+  persisted: boolean;
+  }
+
+const VideoCallModule: React.FC<VideoCallModuleProps> = () => {
+  const [state, setState] = useState<VideoCallModuleState>({
+    username: "",
+    roomName: "",
+    room: null,
+    connecting: false,
+  });
 
   const handleUsernameChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
+    setState((prevState) => ({ ...prevState, username: event.target.value }));
   }, []);
 
   const handleRoomNameChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setRoomName(event.target.value);
+    setState((prevState) => ({ ...prevState, roomName: event.target.value }));
   }, []);
 
   const handleSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
-    setConnecting(true);
+    setState((prevState) => ({ ...prevState, connecting: true }));
 
     try {
       const response = await fetch("http://localhost:3001/video/token", {
         method: "POST",
         body: JSON.stringify({
-          identity: username,
-          room: roomName,
+          identity: state.username,
+          room: state.roomName,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -44,38 +63,43 @@ const VideoCallModule: React.FC = () => {
       const data = await response.json();
 
       Video.connect(data.token, {
-        name: roomName,
-      })
-        .then((newRoom) => {
-          setConnecting(false);
-          setRoom(newRoom);
+        name: state.roomName,
+      } as ConnectOptions)
+        .then((room: Room) => {
+          setState((prevState) => ({ ...prevState, connecting: false, room }));
         })
         .catch((err) => {
           console.error("Error connecting to video room:", err);
-          setConnecting(false);
+          setState((prevState) => ({ ...prevState, connecting: false }));
         });
     } catch (error) {
       console.error("Error fetching token:", error);
-      setConnecting(false);
+      setState((prevState) => ({ ...prevState, connecting: false }));
     }
-  }, [roomName, username]);
+  }, [state]);
 
   const handleLogout = useCallback(() => {
-    setRoom((prevRoom) => {
+    setState((prevState) => {
+      const prevRoom = prevState.room;
       if (prevRoom) {
-        prevRoom.localParticipant.tracks.forEach((trackPub: any) => {
-          trackPub.track.stop();
+        prevRoom.localParticipant.tracks.forEach((trackPub: TrackPublication) => {
+          const track = trackPub.track;
+          if (track.kind === "video" || track.kind === "audio") {
+            (track as LocalTrack | RemoteTrack).stop();
+          }
         });
         prevRoom.disconnect();
       }
-      return null;
+      return { ...prevState, room: null };
     });
   }, []);
 
   useEffect(() => {
+    const { room } = state;
     if (room) {
-      const tidyUp = (event: BeforeUnloadEvent) => {
-        if (event.persisted) {
+      const tidyUp = (event: Event) => {
+        const BeforeUnloadEvent = event as CustomBeforeUnloadEvent;
+        if (BeforeUnloadEvent.persisted) {
           return;
         }
         if (room) {
@@ -89,18 +113,18 @@ const VideoCallModule: React.FC = () => {
         window.removeEventListener("beforeunload", tidyUp);
       };
     }
-  }, [room, handleLogout]);
+  }, [state.room, handleLogout]);
 
-  return room ? (
-    <Room roomName={roomName} room={room} handleLogout={handleLogout} />
+  return state.room ? (
+    <RoomComponent roomName={state.roomName} room={state.room} handleLogout={handleLogout} />
   ) : (
     <Form
-      username={username}
-      roomName={roomName}
+      username={state.username}
+      roomName={state.roomName}
       handleUsernameChange={handleUsernameChange}
       handleRoomNameChange={handleRoomNameChange}
       handleSubmit={handleSubmit}
-      connecting={connecting}
+      connecting={state.connecting}
     />
   );
 };

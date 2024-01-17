@@ -1,44 +1,50 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
+import { ParticipantContainer, ParticipantH3 } from "./Participant.style";
 import {
-  ParticipantContainer,
-  ParticipantH3,
-} from "./Participant.style";
+  RemoteParticipant,
+  RemoteTrackPublication,
+  LocalTrack,
+  RemoteTrack,
+} from "twilio-video";
 
 interface ParticipantProps {
-  participant: any; // Replace 'any' with the actual type of your participant object
+  participant: RemoteParticipant;
 }
 
 const Participant: React.FC<ParticipantProps> = ({ participant }) => {
-  const [videoTracks, setVideoTracks] = useState<any[]>([]);
-  const [audioTracks, setAudioTracks] = useState<any[]>([]);
+  const [videoTracks, setVideoTracks] = useState<LocalTrack[]>([]);
+  const [audioTracks, setAudioTracks] = useState<LocalTrack[]>([]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const trackpubsToTracks = (trackMap: Map<any, any>) =>
+  const trackpubsToTracks = (trackMap: Map<any, RemoteTrackPublication>) =>
     Array.from(trackMap.values())
       .map((publication) => publication.track)
-      .filter((track) => track !== null);
+      .filter((track): track is RemoteTrack => track !== null);
 
   useEffect(() => {
     setVideoTracks(trackpubsToTracks(participant.videoTracks));
     setAudioTracks(trackpubsToTracks(participant.audioTracks));
 
-    const trackSubscribed = (track: any) => {
+    const trackSubscribed = (track: LocalTrack) => {
       if (track.kind === "video") {
-        setVideoTracks((videoTracks) => [...videoTracks, track]);
+        setVideoTracks((prevVideoTracks) => [...prevVideoTracks, track]);
       } else if (track.kind === "audio") {
-        setAudioTracks((audioTracks) => [...audioTracks, track]);
+        setAudioTracks((prevAudioTracks) => [...prevAudioTracks, track]);
       }
     };
 
-    const trackUnsubscribed = (track: any) => {
+    const trackUnsubscribed = (track: LocalTrack) => {
       if (track.kind === "video") {
-        setVideoTracks((videoTracks) => videoTracks.filter((v) => v !== track));
+        setVideoTracks((prevVideoTracks) =>
+          prevVideoTracks.filter((v) => v !== track)
+        );
       } else if (track.kind === "audio") {
-        setAudioTracks((audioTracks) => audioTracks.filter((a) => a !== track));
+        setAudioTracks((prevAudioTracks) =>
+          prevAudioTracks.filter((a) => a !== track)
+        );
       }
     };
 
@@ -82,7 +88,7 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
 };
 
 Participant.propTypes = {
-  participant: PropTypes.object.isRequired,
+  participant: PropTypes.instanceOf(RemoteParticipant).isRequired,
 };
 
 export default Participant;

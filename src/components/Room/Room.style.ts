@@ -31,7 +31,7 @@ const RoomH2 = styled.h2`
     text-align:center;
 `;
 
-const LocalParticipant = styled.div`
+const LocalParticipantContainer = styled.div`
   text-align: center;
   margin-bottom: 2em;
 `;
@@ -43,4 +43,4 @@ const RemoteParticipants = styled.div`
   padding: 0 2em 2em;
 `;
 
-export {RoomContainer, RoomButton, RoomH3, RoomH2, LocalParticipant, RemoteParticipants}
+export {RoomContainer, RoomButton, RoomH3, RoomH2, LocalParticipantContainer, RemoteParticipants}

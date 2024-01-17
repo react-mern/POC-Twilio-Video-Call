@@ -1,44 +1,48 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { Room as TwilioRoom, LocalParticipant as TwilioLocalParticipant, RemoteParticipant as TwilioRemoteParticipant } from "twilio-video"; // Adjust the imports based on the actual Twilio types
 import Participant from "../Participant/Participant";
 import {
   RoomContainer,
   RoomButton,
   RoomH3,
   RoomH2,
-  LocalParticipant,
+  LocalParticipantContainer,
   RemoteParticipants,
 } from "./Room.style";
 
 interface RoomProps {
   roomName: string;
-  room?: any; // Replace 'any' with the actual type of your room object
+  room?: TwilioRoom;
   handleLogout: () => void;
 }
 
+type TwilioParticipant = TwilioLocalParticipant | TwilioRemoteParticipant;
+
 const Room: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
-  const [participants, setParticipants] = useState<any[]>([]);
+  const [participants, setParticipants] = useState<TwilioParticipant[]>([]);
 
   useEffect(() => {
-    const participantConnected = (participant: any) => {
+    const participantConnected = (participant: TwilioParticipant) => {
       setParticipants((prevParticipants) => [...prevParticipants, participant]);
     };
 
-    const participantDisconnected = (participant: any) => {
+    const participantDisconnected = (participant: TwilioParticipant) => {
       setParticipants((prevParticipants) =>
         prevParticipants.filter((p) => p !== participant)
       );
     };
 
-    room.on("participantConnected", participantConnected);
-    room.on("participantDisconnected", participantDisconnected);
-    room.participants.forEach(participantConnected);
+    if (room) {
+      room.on("participantConnected", participantConnected);
+      room.on("participantDisconnected", participantDisconnected);
+      room.participants.forEach(participantConnected);
 
-    return () => {
-      room.off("participantConnected", participantConnected);
-      room.off("participantDisconnected", participantDisconnected);
-    };
+      return () => {
+        room.off("participantConnected", participantConnected);
+        room.off("participantDisconnected", participantDisconnected);
+      };
+    }
   }, [room]);
 
   const remoteParticipants = participants.map((participant) => (
@@ -49,9 +53,9 @@ const Room: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
     <RoomContainer>
       <RoomH2>Room: {roomName}</RoomH2>
       <RoomButton onClick={handleLogout}>Log out</RoomButton>
-      <LocalParticipant>
+      <LocalParticipantContainer>
         {room ? <Participant key={room.localParticipant.sid} participant={room.localParticipant} /> : ""}
-      </LocalParticipant>
+      </LocalParticipantContainer>
       <RoomH3>Remote Participants</RoomH3>
       <RemoteParticipants>{remoteParticipants}</RemoteParticipants>
     </RoomContainer>
@@ -60,7 +64,7 @@ const Room: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
 
 Room.propTypes = {
   roomName: PropTypes.string.isRequired,
-  room: PropTypes.object,
+  room: PropTypes.instanceOf(TwilioRoom),
   handleLogout: PropTypes.func.isRequired,
 };
 

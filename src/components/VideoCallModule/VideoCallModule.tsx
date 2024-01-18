@@ -8,7 +8,7 @@ import Video, {
   LocalVideoTrack,
 } from "twilio-video";
 import Form from "../Form/Form";
-import RoomComponent from "../Room/Room";
+import RoomComponent from "../Room/RoomComponent";
 
 interface TrackPublication {
   track: LocalTrack | RemoteTrack | LocalAudioTrack | LocalVideoTrack;

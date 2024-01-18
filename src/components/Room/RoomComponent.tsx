@@ -23,7 +23,7 @@ interface RoomProps {
 
 type TwilioParticipant = TwilioLocalParticipant | TwilioRemoteParticipant;
 
-const Room: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
+const RoomComponent: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
   // State to manage the list of participants in the room
   const [participants, setParticipants] = useState<TwilioParticipant[]>([]);
 
@@ -87,10 +87,10 @@ const Room: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
 };
 
 // PropTypes validation for the component props
-Room.propTypes = {
+RoomComponent.propTypes = {
   roomName: PropTypes.string.isRequired,
   room: PropTypes.instanceOf(TwilioRoom),
   handleLogout: PropTypes.func.isRequired,
 };
 
-export default Room;
+export default RoomComponent;

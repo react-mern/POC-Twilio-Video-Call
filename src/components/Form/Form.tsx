@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FormEvent } from "react";
 import {
   FormWrapper,
   FormInputWrapper,
@@ -8,11 +8,11 @@ import {
   StyledButton,
 } from "./Form.style";
 import PropTypes from "prop-types";
-import { FormEvent } from "react";
 
+// Creating interface for the props of the component
 interface FormProps {
-  username: string;
-  handleUsernameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  userName: string;
+  handleUserNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   roomName: string;
   handleRoomNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (event: FormEvent) => void;
@@ -20,8 +20,8 @@ interface FormProps {
 }
 
 const Form: React.FC<FormProps> = ({
-  username,
-  handleUsernameChange,
+  userName,
+  handleUserNameChange,
   roomName,
   handleRoomNameChange,
   handleSubmit,
@@ -29,20 +29,22 @@ const Form: React.FC<FormProps> = ({
 }) => {
   return (
     <FormWrapper onSubmit={handleSubmit}>
-       <FormHeading>Enter a room</FormHeading>
-       <FormInputWrapper>
+      <FormHeading>Enter a room</FormHeading>
+      <FormInputWrapper>
+        {/* Form input for username */}
         <FormLabel htmlFor="name">Name:</FormLabel>
         <FormInput
           type="text"
           id="field"
-          value={username}
-          onChange={handleUsernameChange}
+          value={userName}
+          onChange={handleUserNameChange}
           readOnly={connecting}
           required
         />
       </FormInputWrapper>
 
       <FormInputWrapper>
+        {/* Form input for roomName */}
         <FormLabel htmlFor="room">Room name:</FormLabel>
         <FormInput
           type="text"
@@ -61,9 +63,10 @@ const Form: React.FC<FormProps> = ({
   );
 };
 
+// PropTypes validation for the component props
 Form.propTypes = {
-  username: PropTypes.string.isRequired,
-  handleUsernameChange: PropTypes.func.isRequired,
+  userName: PropTypes.string.isRequired,
+  handleUserNameChange: PropTypes.func.isRequired,
   roomName: PropTypes.string.isRequired,
   handleRoomNameChange: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,

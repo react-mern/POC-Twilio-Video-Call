@@ -1,5 +1,7 @@
+// Import the 'createGlobalStyle' function from 'styled-components'
 import { createGlobalStyle } from "styled-components";
 
+// Define the global styles using 'createGlobalStyle'
 const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
@@ -16,4 +18,5 @@ const GlobalStyle = createGlobalStyle`
       }
 `;
 
+// Export the GlobalStyle component for use in the application
 export default GlobalStyle;

@@ -5,10 +5,10 @@ import Participant from "../Participant/Participant";
 import {
   RoomContainer,
   RoomButton,
-  RoomH3,
-  RoomH2,
+  RoomHeading3,
+  RoomHeading2,
   LocalParticipantContainer,
-  RemoteParticipants,
+  RemoteParticipantContainer,
 } from "./Room.style";
 
 interface RoomProps {
@@ -51,13 +51,13 @@ const Room: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
 
   return (
     <RoomContainer>
-      <RoomH2>Room: {roomName}</RoomH2>
+      <RoomHeading2>Room: {roomName}</RoomHeading2>
       <RoomButton onClick={handleLogout}>Log out</RoomButton>
       <LocalParticipantContainer>
         {room ? <Participant key={room.localParticipant.sid} participant={room.localParticipant} /> : ""}
       </LocalParticipantContainer>
-      <RoomH3>Remote Participants</RoomH3>
-      <RemoteParticipants>{remoteParticipants}</RemoteParticipants>
+      <RoomHeading3>Remote Participants</RoomHeading3>
+      <RemoteParticipantContainer>{remoteParticipants}</RemoteParticipantContainer>
     </RoomContainer>
   );
 };

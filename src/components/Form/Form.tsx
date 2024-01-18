@@ -8,7 +8,7 @@ import {
   StyledButton,
 } from "./Form.style";
 import { validationSchema } from "../../constants/formValidation";
-import { ErrorStyle } from "../../styled/Error.style";
+import ErrorStyle from "../../styled/Error.style";
 import PropTypes from "prop-types";
 
 interface FormProps {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Room as TwilioRoom, LocalParticipant as TwilioLocalParticipant, RemoteParticipant as TwilioRemoteParticipant } from "twilio-video"; // Adjust the imports based on the actual Twilio types
+import { Room as TwilioRoom, LocalParticipant as TwilioLocalParticipant, RemoteParticipant as TwilioRemoteParticipant } from "twilio-video"; 
 import Participant from "../Participant/Participant";
 import {
   RoomContainer,
@@ -46,7 +46,7 @@ const Room: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
   }, [room]);
 
   const remoteParticipants = participants.map((participant) => (
-    <Participant key={participant.sid} participant={participant} />
+    <Participant key={participant.sid} participant={participant as TwilioRemoteParticipant} />
   ));
 
   return (

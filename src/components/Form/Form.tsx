@@ -1,25 +1,21 @@
 import React from "react";
-import { Formik, Field, ErrorMessage, FormikHelpers } from "formik";
 import {
   FormWrapper,
   FormInputWrapper,
   FormLabel,
   FormHeading,
+  FormInput,
   StyledButton,
 } from "./Form.style";
-import { validationSchema } from "../../constants/formValidation";
-import ErrorStyle from "../../styled/Error.style";
 import PropTypes from "prop-types";
+import { FormEvent } from "react";
 
 interface FormProps {
   username: string;
   handleUsernameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   roomName: string;
   handleRoomNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (
-    values: { username: string; roomName: string },
-    formikHelpers: FormikHelpers<{ username: string; roomName: string }>
-  ) => void;
+  handleSubmit: (event: FormEvent) => void;
   connecting: boolean;
 }
 
@@ -32,46 +28,36 @@ const Form: React.FC<FormProps> = ({
   connecting,
 }) => {
   return (
-    <Formik
-      initialValues={{ username: "", roomName: "" }}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      <FormWrapper>
-        <FormHeading>Enter a room</FormHeading>
-        <FormInputWrapper>
-          <FormLabel htmlFor="username">Name:</FormLabel>
-          <Field
-            type="text"
-            id="username"
-            placeholder="Your name"
-            name="username"
-            value={username}
-            onChange={handleUsernameChange}
-            readOnly={connecting}
-          />
-          <ErrorMessage name="username" component={ErrorStyle} />
-        </FormInputWrapper>
+    <FormWrapper onSubmit={handleSubmit}>
+       <FormHeading>Enter a room</FormHeading>
+       <FormInputWrapper>
+        <FormLabel htmlFor="name">Name:</FormLabel>
+        <FormInput
+          type="text"
+          id="field"
+          value={username}
+          onChange={handleUsernameChange}
+          readOnly={connecting}
+          required
+        />
+      </FormInputWrapper>
 
-        <FormInputWrapper>
-          <FormLabel htmlFor="roomName">Room name:</FormLabel>
-          <Field
-            type="text"
-            id="roomName"
-            placeholder="Room name"
-            name="roomName"
-            value={roomName}
-            onChange={handleRoomNameChange}
-            readOnly={connecting}
-          />
-          <ErrorMessage name="roomName" component={ErrorStyle} />
-        </FormInputWrapper>
+      <FormInputWrapper>
+        <FormLabel htmlFor="room">Room name:</FormLabel>
+        <FormInput
+          type="text"
+          id="room"
+          value={roomName}
+          onChange={handleRoomNameChange}
+          readOnly={connecting}
+          required
+        />
+      </FormInputWrapper>
 
-        <StyledButton type="submit" disabled={connecting}>
-          {connecting ? "Connecting" : "Join"}
-        </StyledButton>
-      </FormWrapper>
-    </Formik>
+      <StyledButton type="submit" disabled={connecting}>
+        {connecting ? "Connecting" : "Join"}
+      </StyledButton>
+    </FormWrapper>
   );
 };
 

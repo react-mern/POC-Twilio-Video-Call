@@ -15,7 +15,11 @@ interface ParticipantProps {
 }
 
 type TrackPublication = LocalTrackPublication | RemoteTrackPublication;
-
+/**
+ * 
+ * @param param0 
+ * @returns 
+ */
 const Participant: React.FC<ParticipantProps> = ({ participant }) => {
   const [videoTracks, setVideoTracks] = useState<(LocalTrack | RemoteTrack)[]>([]);
   const [audioTracks, setAudioTracks] = useState<(LocalTrack | RemoteTrack)[]>([]);

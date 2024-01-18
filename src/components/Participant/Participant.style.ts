@@ -15,11 +15,11 @@ const ParticipantContainer = styled.div`
 `;
 
 // Styled heading (H3) for participant with specific text alignment and color
-const ParticipantH3 = styled.h3`
+const ParticipantHeading3 = styled.h3`
   text-align: center;
   padding-bottom: 0.5em;
   color: #fff;
 `;
 
 // Export the styled components for use in other parts of your application
-export { ParticipantContainer, ParticipantH3 };
+export { ParticipantContainer, ParticipantHeading3 };

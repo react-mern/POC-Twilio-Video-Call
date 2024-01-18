@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
-import { ParticipantContainer, ParticipantH3 } from "./Participant.style";
+import { ParticipantContainer, ParticipantHeading3 } from "./Participant.style";
 import {
   RemoteParticipant,
   RemoteTrackPublication,
@@ -103,7 +103,7 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
   // Render the participant component and styled components
   return (
     <ParticipantContainer>
-      <ParticipantH3>{participant.identity}</ParticipantH3>
+      <ParticipantHeading3>{participant.identity}</ParticipantHeading3>
       <video ref={videoRef} autoPlay={true} />
       <audio ref={audioRef} autoPlay={true} muted={false} />
     </ParticipantContainer>

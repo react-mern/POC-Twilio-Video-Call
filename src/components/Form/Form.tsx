@@ -6,7 +6,7 @@ import {
   FormHeading,
   FormInput,
   StyledButton,
-} from "./Form.style";
+} from "@src/components/Form/Form.style";
 import PropTypes from "prop-types";
 
 // Creating interface for the props of the component

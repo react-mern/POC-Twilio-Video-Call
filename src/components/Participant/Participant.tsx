@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import PropTypes from "prop-types";
-import { ParticipantContainer, ParticipantHeading3 } from "./Participant.style";
+import { ParticipantContainer, ParticipantHeading3 } from "@src/components/Participant/Participant.style";
 import {
   RemoteParticipant,
   RemoteTrackPublication,
@@ -9,6 +8,7 @@ import {
   LocalTrackPublication,
   LocalParticipant,
 } from "twilio-video";
+import PropTypes from "prop-types";
 
 interface ParticipantProps {
   participant: RemoteParticipant | LocalParticipant;

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import {
   Room as TwilioRoom,
   LocalParticipant as TwilioLocalParticipant,
   RemoteParticipant as TwilioRemoteParticipant,
 } from "twilio-video";
-import Participant from "../Participant/Participant";
 import {
   RoomContainer,
   RoomButton,
@@ -13,7 +11,9 @@ import {
   RoomHeading2,
   LocalParticipantContainer,
   RemoteParticipantContainer,
-} from "./Room.style";
+} from "@src/components/Room/Room.style";
+import Participant from "@src/components/Participant/Participant";
+import PropTypes from "prop-types";
 
 interface RoomProps {
   roomName: string;
@@ -23,7 +23,11 @@ interface RoomProps {
 
 type TwilioParticipant = TwilioLocalParticipant | TwilioRemoteParticipant;
 
-const RoomComponent: React.FC<RoomProps> = ({ roomName, room, handleLogout }) => {
+const RoomComponent: React.FC<RoomProps> = ({
+  roomName,
+  room,
+  handleLogout,
+}) => {
   // State to manage the list of participants in the room
   const [participants, setParticipants] = useState<TwilioParticipant[]>([]);
 

@@ -9,6 +9,7 @@ import Video, {
 } from "twilio-video";
 import Form from "@src/components/Form/Form";
 import RoomComponent from "@src/components/Room/RoomComponent";
+import { TRACK_KIND_AUDIO, TRACK_KIND_VIDEO } from "@src/constants/trackType";
 
 interface TrackPublication {
   track: LocalTrack | RemoteTrack | LocalAudioTrack | LocalVideoTrack;
@@ -26,7 +27,6 @@ interface CustomBeforeUnloadEvent extends Event {
 }
 
 const VideoCallModule: React.FC = () => {
-  // State for managing component data
   const [state, setState] = useState<VideoCallModuleState>({
     userName: "",
     roomName: "",
@@ -66,7 +66,6 @@ const VideoCallModule: React.FC = () => {
       setState((prevState) => ({ ...prevState, connecting: true }));
 
       try {
-        // to fetch the token from the server
         const response = await fetch("http://localhost:3001/video/token", {
           method: "POST",
           body: JSON.stringify({
@@ -121,7 +120,7 @@ const VideoCallModule: React.FC = () => {
         prevRoom.localParticipant.tracks.forEach(
           (trackPub: TrackPublication) => {
             const track = trackPub.track;
-            if (track.kind === "video" || track.kind === "audio") {
+            if (track.kind === TRACK_KIND_VIDEO || track.kind === TRACK_KIND_AUDIO) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (track as any).stop();
             }
@@ -158,14 +157,12 @@ const VideoCallModule: React.FC = () => {
 
   // conditionally rendering the component based on the existence of a 'room'
   return state.room ? (
-    // Render RoomComponent if there is a room in the state
     <RoomComponent
       roomName={state.roomName}
       room={state.room}
       handleLogout={handleLogout}
     />
   ) : (
-    // Render Form component if there is no room in the state
     <Form
       userName={state.userName}
       roomName={state.roomName}

@@ -1,7 +1,7 @@
 // Import the 'styled' function from 'styled-components'
 import styled from "styled-components";
 
-// Styled container for individual participant with specific styling
+// Style for the Particpant component
 const ParticipantContainer = styled.div`
   background: #333e5a;
   padding: 10px;
@@ -14,7 +14,6 @@ const ParticipantContainer = styled.div`
   }
 `;
 
-// Styled heading (H3) for participant with specific text alignment and color
 const ParticipantHeading3 = styled.h3`
   text-align: center;
   padding-bottom: 0.5em;

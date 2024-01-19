@@ -1,12 +1,11 @@
 // Import the 'styled' function from 'styled-components'
 import styled from "styled-components";
 
-// Styled container for the entire room with relative positioning
+// Style for the Room component
 const RoomContainer = styled.div`
   position: relative;
 `;
 
-// Styled button for actions in the room
 const RoomButton = styled.button`
   position: absolute;
   top: 0;
@@ -23,25 +22,21 @@ const RoomButton = styled.button`
   }
 `;
 
-// Styled heading (H3) for room with specific text alignment, font weight, and margin
 const RoomHeading3 = styled.h3`
   text-align: center;
   font-weight: 300;
   margin-bottom: 1em;
 `;
 
-// Styled heading (H2) for room with centered text alignment
 const RoomHeading2 = styled.h2`
   text-align: center;
 `;
 
-// Styled container for the local participant with centered text alignment and margin
 const LocalParticipantContainer = styled.div`
   text-align: center;
   margin-bottom: 2em;
 `;
 
-// Styled container for remote participants with flex display, nowrap, and justified space between
 const RemoteParticipantContainer = styled.div`
   display: flex;
   flex-wrap: nowrap;

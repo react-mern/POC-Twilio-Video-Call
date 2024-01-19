@@ -28,7 +28,6 @@ const RoomComponent: React.FC<RoomProps> = ({
   room,
   handleLogout,
 }) => {
-  // State to manage the list of participants in the room
   const [participants, setParticipants] = useState<TwilioParticipant[]>([]);
 
   useEffect(() => {

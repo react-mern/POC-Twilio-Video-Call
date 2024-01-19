@@ -9,6 +9,7 @@ import {
   LocalParticipant,
 } from "twilio-video";
 import PropTypes from "prop-types";
+import { TRACK_KIND_AUDIO, TRACK_KIND_VIDEO } from "@src/constants/trackType";
 
 interface ParticipantProps {
   participant: RemoteParticipant | LocalParticipant;
@@ -42,20 +43,20 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
 
     // Event handler for track subscription
     const trackSubscribed = (track: LocalTrack) => {
-      if (track.kind === "video") {
+      if (track.kind === TRACK_KIND_VIDEO) {
         setVideoTracks((prevVideoTracks) => [...prevVideoTracks, track]);
-      } else if (track.kind === "audio") {
+      } else if (track.kind === TRACK_KIND_AUDIO) {
         setAudioTracks((prevAudioTracks) => [...prevAudioTracks, track]);
       }
     };
 
     // Event handler for track unsubscription
     const trackUnsubscribed = (track: LocalTrack) => {
-      if (track.kind === "video") {
+      if (track.kind === TRACK_KIND_VIDEO) {
         setVideoTracks((prevVideoTracks) =>
           prevVideoTracks.filter((v) => v !== track)
         );
-      } else if (track.kind === "audio") {
+      } else if (track.kind === TRACK_KIND_AUDIO) {
         setAudioTracks((prevAudioTracks) =>
           prevAudioTracks.filter((a) => a !== track)
         );
@@ -78,7 +79,7 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
   useEffect(() => {
     const videoTrack = videoTracks[0];
     if (videoTrack && videoRef.current) {
-      if (videoTrack.kind === "video") {
+      if (videoTrack.kind === TRACK_KIND_VIDEO) {
         videoTrack.attach(videoRef.current);
         return () => {
           videoTrack.detach();
@@ -91,7 +92,7 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
   useEffect(() => {
     const audioTrack = audioTracks[0];
     if (audioTrack && audioRef.current) {
-      if (audioTrack.kind === "audio") {
+      if (audioTrack.kind === TRACK_KIND_AUDIO) {
         audioTrack.attach(audioRef.current);
         return () => {
           audioTrack.detach();

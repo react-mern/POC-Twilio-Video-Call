@@ -1,5 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import { ParticipantContainer, ParticipantHeading3 } from "@src/components/Participant/Participant.style";
+import PropTypes from "prop-types";
+import {
+  ParticipantContainer,
+  ParticipantHeading3,
+} from "@src/components/Participant/Participant.style";
 import {
   RemoteParticipant,
   RemoteTrackPublication,
@@ -8,7 +12,6 @@ import {
   LocalTrackPublication,
   LocalParticipant,
 } from "twilio-video";
-import PropTypes from "prop-types";
 import { TRACK_KIND_AUDIO, TRACK_KIND_VIDEO } from "@src/constants/trackType";
 
 interface ParticipantProps {
@@ -17,14 +20,12 @@ interface ParticipantProps {
 
 type TrackPublication = LocalTrackPublication | RemoteTrackPublication;
 
+type TrackType = LocalTrack | RemoteTrack;
+
 const Participant: React.FC<ParticipantProps> = ({ participant }) => {
   // State to track video and audio tracks for the participant
-  const [videoTracks, setVideoTracks] = useState<(LocalTrack | RemoteTrack)[]>(
-    []
-  );
-  const [audioTracks, setAudioTracks] = useState<(LocalTrack | RemoteTrack)[]>(
-    []
-  );
+  const [videoTracks, setVideoTracks] = useState<TrackType[]>([]);
+  const [audioTracks, setAudioTracks] = useState<TrackType[]>([]);
 
   // Refs for video and audio elements
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -73,7 +74,7 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
       setAudioTracks([]);
       participant.removeAllListeners();
     };
-  }, [participant]);
+  }, [participant, setVideoTracks, setAudioTracks]);
 
   // useEffect to handle video track attachment and detachment
   useEffect(() => {

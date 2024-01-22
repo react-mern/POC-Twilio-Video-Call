@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import {
   Room as TwilioRoom,
   LocalParticipant as TwilioLocalParticipant,
@@ -13,7 +14,6 @@ import {
   RemoteParticipantContainer,
 } from "@src/components/Room/Room.style";
 import Participant from "@src/components/Participant/Participant";
-import PropTypes from "prop-types";
 
 interface RoomProps {
   roomName: string;
@@ -33,7 +33,12 @@ const RoomComponent: React.FC<RoomProps> = ({
   useEffect(() => {
     // Callback function to handle a participant connection
     const participantConnected = (participant: TwilioParticipant) => {
-      setParticipants((prevParticipants) => [...prevParticipants, participant]);
+      setParticipants((prevParticipants) => {
+        if (!prevParticipants.find((p) => p.sid === participant.sid)) {
+          return [...prevParticipants, participant];
+        }
+        return prevParticipants;
+      });
     };
 
     // Callback function to handle a participant disconnection
@@ -54,6 +59,7 @@ const RoomComponent: React.FC<RoomProps> = ({
       return () => {
         room.off("participantConnected", participantConnected);
         room.off("participantDisconnected", participantDisconnected);
+        setParticipants([]);
       };
     }
   }, [room]);

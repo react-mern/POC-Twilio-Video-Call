@@ -120,7 +120,10 @@ const VideoCallModule: React.FC = () => {
         prevRoom.localParticipant.tracks.forEach(
           (trackPub: TrackPublication) => {
             const track = trackPub.track;
-            if (track.kind === TRACK_KIND_VIDEO || track.kind === TRACK_KIND_AUDIO) {
+            if (
+              track.kind === TRACK_KIND_VIDEO ||
+              track.kind === TRACK_KIND_AUDIO
+            ) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (track as any).stop();
             }

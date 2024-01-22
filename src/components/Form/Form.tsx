@@ -1,4 +1,5 @@
 import React, { FormEvent } from "react";
+import PropTypes from "prop-types";
 import {
   FormWrapper,
   FormInputWrapper,
@@ -7,7 +8,6 @@ import {
   FormInput,
   StyledButton,
 } from "@src/components/Form/Form.style";
-import PropTypes from "prop-types";
 
 // Creating interface for the props of the component
 interface FormProps {

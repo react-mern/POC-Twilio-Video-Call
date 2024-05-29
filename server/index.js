@@ -20,6 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
+// Twilio configuration
 const config = {
   twilio: {
     accountSid: process.env.ACCOUNT_SID,
@@ -28,6 +29,7 @@ const config = {
   },
 };
 
+// Function to send token response
 const sendTokenResponse = (token, res) => {
   res.set('Content-Type', 'application/json');
   res.send(
@@ -37,6 +39,7 @@ const sendTokenResponse = (token, res) => {
   );
 };
 
+// Route to generate token for GET request
 app.get('/video/token', (req, res) => {
   const identity = req.query.identity;
   const room = req.query.room;
@@ -44,6 +47,7 @@ app.get('/video/token', (req, res) => {
   sendTokenResponse(token, res);
 });
 
+// Route to generate token for POST request
 app.post('/video/token', (req, res) => {
   const identity = req.body.identity;
   const room = req.body.room;

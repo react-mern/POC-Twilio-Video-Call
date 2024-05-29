@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import {
   FormWrapper,
@@ -8,16 +8,7 @@ import {
   FormInput,
   StyledButton,
 } from "@src/components/Form/Form.style";
-
-// Creating interface for the props of the component
-interface FormProps {
-  userName: string;
-  handleUserNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  roomName: string;
-  handleRoomNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (event: FormEvent) => void;
-  connecting: boolean;
-}
+import { FormProps } from "@src/types/types";
 
 const Form: React.FC<FormProps> = ({
   userName,
@@ -31,7 +22,7 @@ const Form: React.FC<FormProps> = ({
     <FormWrapper onSubmit={handleSubmit}>
       <FormHeading>Enter a room</FormHeading>
       <FormInputWrapper>
-        {/* Form input for username */}
+        {/* Input field for username */}
         <FormLabel htmlFor="name">Name:</FormLabel>
         <FormInput
           type="text"
@@ -44,7 +35,7 @@ const Form: React.FC<FormProps> = ({
       </FormInputWrapper>
 
       <FormInputWrapper>
-        {/* Form input for roomName */}
+        {/* Input field for room name */}
         <FormLabel htmlFor="room">Room name:</FormLabel>
         <FormInput
           type="text"

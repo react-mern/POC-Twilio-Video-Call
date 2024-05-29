@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import {
-  Room as TwilioRoom,
-  LocalParticipant as TwilioLocalParticipant,
-  RemoteParticipant as TwilioRemoteParticipant,
-} from "twilio-video";
+import { RemoteParticipant as TwilioRemoteParticipant } from "twilio-video";
 import {
   RoomContainer,
   RoomButton,
@@ -14,92 +9,87 @@ import {
   RemoteParticipantContainer,
 } from "@src/components/Room/Room.style";
 import Participant from "@src/components/Participant/Participant";
-
-interface RoomProps {
-  roomName: string;
-  room?: TwilioRoom;
-  handleLogout: () => void;
-}
-
-type TwilioParticipant = TwilioLocalParticipant | TwilioRemoteParticipant;
+import { RoomProps, TwilioParticipant } from "@src/types/types";
 
 const RoomComponent: React.FC<RoomProps> = ({
   roomName,
   room,
   handleLogout,
 }) => {
-  const [participants, setParticipants] = useState<TwilioParticipant[]>([]);
+  const [remoteParticipants, setRemoteParticipants] = useState<
+    Map<string, TwilioParticipant>
+  >(new Map());
 
   useEffect(() => {
-    // Callback function to handle a participant connection
+    /**
+     * @function participantConnected
+     * @description Adds a connected participant to the state
+     * @param {TwilioParticipant} participant - The participant that connected
+     * @returns {void}
+     */
     const participantConnected = (participant: TwilioParticipant) => {
-      setParticipants((prevParticipants) => {
-        if (!prevParticipants.find((p) => p.sid === participant.sid)) {
-          return [...prevParticipants, participant];
+      setRemoteParticipants((prevParticipants) => {
+        if (!prevParticipants.has(participant.sid)) {
+          return new Map(prevParticipants).set(participant.sid, participant);
         }
         return prevParticipants;
       });
     };
 
-    // Callback function to handle a participant disconnection
+    /**
+     * @function participantDisconnected
+     * @description Removes a disconnected participant from the state
+     * @param {TwilioParticipant} participant - The participant that disconnected
+     * @returns {void}
+     */
     const participantDisconnected = (participant: TwilioParticipant) => {
-      setParticipants((prevParticipants) =>
-        prevParticipants.filter((p) => p !== participant)
-      );
+      setRemoteParticipants((prevParticipants) => {
+        const newParticipants = new Map(prevParticipants);
+        newParticipants.delete(participant.sid);
+        return newParticipants;
+      });
     };
 
-    // Event listeners for participant connection and disconnection
     if (room) {
+      // Register event listeners for participant connection and disconnection
       room.on("participantConnected", participantConnected);
       room.on("participantDisconnected", participantDisconnected);
-      // Initial setup for existing participants in the room
+
+      // Add already connected participants
       room.participants.forEach(participantConnected);
 
-      // Cleanup: Remove event listeners when the component unmounts or the room changes
+      // Cleanup event listeners on component unmount or when room changes
       return () => {
         room.off("participantConnected", participantConnected);
         room.off("participantDisconnected", participantDisconnected);
-        setParticipants([]);
+        setRemoteParticipants(new Map());
       };
     }
   }, [room]);
 
-  // Map the remote participants to Participant components
-  const remoteParticipants = participants.map((participant) => (
-    <Participant
-      key={participant.sid}
-      participant={participant as TwilioRemoteParticipant}
-    />
-  ));
-
-  // rendering of the styled components
   return (
     <RoomContainer>
       <RoomHeading2>Room: {roomName}</RoomHeading2>
       <RoomButton onClick={handleLogout}>Log out</RoomButton>
       <LocalParticipantContainer>
-        {room ? (
+        {room && (
           <Participant
             key={room.localParticipant.sid}
             participant={room.localParticipant}
           />
-        ) : (
-          ""
         )}
       </LocalParticipantContainer>
       <RoomHeading3>Remote Participants</RoomHeading3>
       <RemoteParticipantContainer>
-        {remoteParticipants}
+        {Array.from(remoteParticipants.values()).map((participant) => (
+          <Participant
+            key={participant.sid}
+            participant={participant as TwilioRemoteParticipant}
+          />
+        ))}
       </RemoteParticipantContainer>
     </RoomContainer>
   );
-};
-
-// PropTypes validation for the component props
-RoomComponent.propTypes = {
-  roomName: PropTypes.string.isRequired,
-  room: PropTypes.instanceOf(TwilioRoom),
-  handleLogout: PropTypes.func.isRequired,
 };
 
 export default RoomComponent;

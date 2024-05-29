@@ -1,4 +1,3 @@
-// Import the 'styled' function from 'styled-components'
 import styled from "styled-components";
 
 // Style for the Form component

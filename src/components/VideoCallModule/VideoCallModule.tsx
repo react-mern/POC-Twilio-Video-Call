@@ -1,76 +1,56 @@
 import React, { useState, useCallback, useEffect } from "react";
-import Video, {
-  Room,
-  ConnectOptions,
-  LocalTrack,
-  RemoteTrack,
-  LocalAudioTrack,
-  LocalVideoTrack,
-} from "twilio-video";
+import Video, { Room, ConnectOptions, LocalTrack } from "twilio-video";
 import Form from "@src/components/Form/Form";
 import RoomComponent from "@src/components/Room/RoomComponent";
+import Loader from "@src/components/Loader/Loader";
 import { TRACK_KIND_AUDIO, TRACK_KIND_VIDEO } from "@src/constants/trackType";
-
-interface TrackPublication {
-  track: LocalTrack | RemoteTrack | LocalAudioTrack | LocalVideoTrack;
-}
-
-interface VideoCallModuleState {
-  userName: string;
-  roomName: string;
-  room: Room | null;
-  connecting: boolean;
-}
-
-interface CustomBeforeUnloadEvent extends Event {
-  persisted: boolean;
-}
+import {
+  TrackPublication,
+  VideoCallModuleState,
+  CustomBeforeUnloadEvent,
+} from "@src/types/types";
 
 const VideoCallModule: React.FC = () => {
   const [state, setState] = useState<VideoCallModuleState>({
-    userName: "",
-    roomName: "",
+    userName: localStorage.getItem("userName") || "",
+    roomName: localStorage.getItem("roomName") || "",
     room: null,
     connecting: false,
   });
+  const [localTracks, setLocalTracks] = useState<LocalTrack[]>([]);
 
   /**
-   * @function handleUserNameChange
-   * @description updates the userName property when input field is triggered
+   * @function createLocalTracks
+   * @description Creates local audio and video tracks for the user
+   * @param none
+   * @returns {Promise<LocalTrack[]>} A promise that resolves with an array of local tracks
    */
-  const handleUserNameChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setState((prevState) => ({ ...prevState, userName: event.target.value }));
-    },
-    []
-  );
+  const createLocalTracks = useCallback(async () => {
+    const tracks = await Video.createLocalTracks({
+      audio: true,
+      video: { width: 640 },
+    });
+    setLocalTracks(tracks);
+    return tracks;
+  }, []);
 
   /**
-   * @function handleRoomNameChange
-   * @description updates the roomName property when input field is triggered
+   * @function connectToRoom
+   * @description Connects the user to a Twilio video room with the provided username and room name
+   * @param {string} userName - The username of the participant
+   * @param {string} roomName - The name of the room to join
+   * @returns {void}
    */
-  const handleRoomNameChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setState((prevState) => ({ ...prevState, roomName: event.target.value }));
-    },
-    []
-  );
-
-  /**
-   * @function handleSubmit
-   * @description handles the submission of the form
-   */
-  const handleSubmit = useCallback(
-    async (event: React.FormEvent) => {
-      event.preventDefault();
+  const connectToRoom = useCallback(
+    async (userName: string, roomName: string) => {
       setState((prevState) => ({ ...prevState, connecting: true }));
 
       try {
         const response = await fetch("http://localhost:3001/video/token", {
           method: "POST",
           body: JSON.stringify({
-            identity: state.userName,
-            room: state.roomName,
+            identity: userName,
+            room: roomName,
           }),
           headers: {
             "Content-Type": "application/json",
@@ -86,9 +66,12 @@ const VideoCallModule: React.FC = () => {
 
         const data = await response.json();
 
-        // using Video.connect function of Twilio to connect to a video room
+        const tracks =
+          localTracks.length > 0 ? localTracks : await createLocalTracks();
+
         Video.connect(data.token, {
-          name: state.roomName,
+          name: roomName,
+          tracks: tracks,
         } as ConnectOptions)
           .then((room: Room) => {
             setState((prevState) => ({
@@ -96,6 +79,8 @@ const VideoCallModule: React.FC = () => {
               connecting: false,
               room,
             }));
+            localStorage.setItem("userName", userName);
+            localStorage.setItem("roomName", roomName);
           })
           .catch((err) => {
             console.error("Error connecting to video room:", err);
@@ -106,37 +91,83 @@ const VideoCallModule: React.FC = () => {
         setState((prevState) => ({ ...prevState, connecting: false }));
       }
     },
-    [state]
+    [localTracks, createLocalTracks]
+  );
+
+  /**
+   * @function handleUserNameChange
+   * @description Updates the username in the component state when the input changes
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The input change event
+   * @returns {void}
+   */
+  const handleUserNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setState((prevState) => ({ ...prevState, userName: event.target.value }));
+    },
+    []
+  );
+
+  /**
+   * @function handleRoomNameChange
+   * @description Updates the room name in the component state when the input changes
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The input change event
+   * @returns {void}
+   */
+  const handleRoomNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setState((prevState) => ({ ...prevState, roomName: event.target.value }));
+    },
+    []
+  );
+
+  /**
+   * @function handleSubmit
+   * @description Handles the form submission to join a video room
+   * @param {React.FormEvent} event - The form submission event
+   * @returns {void}
+   */
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      connectToRoom(state.userName, state.roomName);
+    },
+    [state.userName, state.roomName, connectToRoom]
   );
 
   /**
    * @function handleLogout
-   * @description responsible for disconnecting from the current video room and stopping any local audio and video tracks that are active
+   * @description Handles the logout process, disconnects from the room and clears local storage
+   * @param none
+   * @returns {void}
    */
   const handleLogout = useCallback(() => {
-    setState((prevState) => {
-      const prevRoom = prevState.room;
-      if (prevRoom) {
-        prevRoom.localParticipant.tracks.forEach(
-          (trackPub: TrackPublication) => {
-            const track = trackPub.track;
-            if (
-              track.kind === TRACK_KIND_VIDEO ||
-              track.kind === TRACK_KIND_AUDIO
-            ) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (track as any).stop();
+    const userConfirmed = window.confirm("Are you sure you want to logout?");
+    if (userConfirmed) {
+      setState((prevState) => {
+        const prevRoom = prevState.room;
+        if (prevRoom) {
+          prevRoom.localParticipant.tracks.forEach(
+            (trackPub: TrackPublication) => {
+              const track = trackPub.track;
+              if (
+                track.kind === TRACK_KIND_VIDEO ||
+                track.kind === TRACK_KIND_AUDIO
+              ) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (track as any).stop();
+              }
             }
-          }
-        );
-        // after stopping local tracks, it disconnects from the room
-        prevRoom.disconnect();
-      }
-      return { ...prevState, room: null };
-    });
+          );
+          prevRoom.disconnect();
+        }
+        return { userName: "", roomName: "", room: null, connecting: false };
+      });
+      localStorage.removeItem("userName");
+      localStorage.removeItem("roomName");
+    }
   }, []);
 
-  // responsible for attaching event listeners to the pagehide and beforeunload events to handle cleanup operations when the user navigates away from the page or closes the browser window
+  // Cleanup on component unmount
   useEffect(() => {
     const { room } = state;
     if (room) {
@@ -158,22 +189,34 @@ const VideoCallModule: React.FC = () => {
     }
   }, [state.room, handleLogout, state]);
 
-  // conditionally rendering the component based on the existence of a 'room'
-  return state.room ? (
-    <RoomComponent
-      roomName={state.roomName}
-      room={state.room}
-      handleLogout={handleLogout}
-    />
-  ) : (
-    <Form
-      userName={state.userName}
-      roomName={state.roomName}
-      handleUserNameChange={handleUserNameChange}
-      handleRoomNameChange={handleRoomNameChange}
-      handleSubmit={handleSubmit}
-      connecting={state.connecting}
-    />
+  // Automatically connect to room on initial load if username and roomname are available
+  useEffect(() => {
+    if (state.userName && state.roomName && !state.room) {
+      connectToRoom(state.userName, state.roomName);
+    }
+  }, [state.userName, state.roomName, state.room, connectToRoom]);
+
+  return (
+    <>
+      {state.connecting ? (
+        <Loader />
+      ) : state.room ? (
+        <RoomComponent
+          roomName={state.roomName}
+          room={state.room}
+          handleLogout={handleLogout}
+        />
+      ) : (
+        <Form
+          userName={state.userName}
+          roomName={state.roomName}
+          handleUserNameChange={handleUserNameChange}
+          handleRoomNameChange={handleRoomNameChange}
+          handleSubmit={handleSubmit}
+          connecting={state.connecting}
+        />
+      )}
+    </>
   );
 };
 

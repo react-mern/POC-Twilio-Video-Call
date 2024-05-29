@@ -1,48 +1,48 @@
 import React, { useEffect, useState, useRef } from "react";
-import PropTypes from "prop-types";
 import {
   ParticipantContainer,
   ParticipantHeading3,
 } from "@src/components/Participant/Participant.style";
-import {
-  RemoteParticipant,
-  RemoteTrackPublication,
-  LocalTrack,
-  RemoteTrack,
-  LocalTrackPublication,
-  LocalParticipant,
-} from "twilio-video";
+import { LocalTrack, RemoteTrack } from "twilio-video";
 import { TRACK_KIND_AUDIO, TRACK_KIND_VIDEO } from "@src/constants/trackType";
-
-interface ParticipantProps {
-  participant: RemoteParticipant | LocalParticipant;
-}
-
-type TrackPublication = LocalTrackPublication | RemoteTrackPublication;
-
-type TrackType = LocalTrack | RemoteTrack;
+import {
+  ParticipantProps,
+  ParticipantTrackPublication,
+  TrackType,
+} from "@src/types/types";
 
 const Participant: React.FC<ParticipantProps> = ({ participant }) => {
-  // State to track video and audio tracks for the participant
   const [videoTracks, setVideoTracks] = useState<TrackType[]>([]);
   const [audioTracks, setAudioTracks] = useState<TrackType[]>([]);
-
-  // Refs for video and audio elements
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Function to convert track publications to tracks
-  const trackpubsToTracks = (trackMap: Map<string, TrackPublication>) =>
+    /**
+   * @function trackpubsToTracks
+   * @description Converts a map of track publications to an array of tracks
+   * @param {Map<string, ParticipantTrackPublication>} trackMap - The map of track publications
+   * @returns {TrackType[]} An array of tracks
+   */
+  const trackpubsToTracks = (
+    trackMap: Map<string, ParticipantTrackPublication>
+  ) =>
     Array.from(trackMap.values())
       .map((publication) => publication.track)
       .filter((track): track is RemoteTrack => track !== null);
 
-  // useEffect to handle track subscription and unsubscription
+  // Effect to handle track subscriptions and unsubscriptions
   useEffect(() => {
-    setVideoTracks(trackpubsToTracks(participant.videoTracks));
-    setAudioTracks(trackpubsToTracks(participant.audioTracks));
+    const videoTracks = trackpubsToTracks(participant.videoTracks);
+    const audioTracks = trackpubsToTracks(participant.audioTracks);
+    setVideoTracks(videoTracks);
+    setAudioTracks(audioTracks);
 
-    // Event handler for track subscription
+    /**
+     * @function trackSubscribed
+     * @description Handles the subscription of a new track
+     * @param {LocalTrack} track - The track that was subscribed to
+     * @returns {void}
+     */
     const trackSubscribed = (track: LocalTrack) => {
       if (track.kind === TRACK_KIND_VIDEO) {
         setVideoTracks((prevVideoTracks) => [...prevVideoTracks, track]);
@@ -51,7 +51,12 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
       }
     };
 
-    // Event handler for track unsubscription
+    /**
+     * @function trackUnsubscribed
+     * @description Handles the unsubscription of a track
+     * @param {LocalTrack} track - The track that was unsubscribed from
+     * @returns {void}
+     */
     const trackUnsubscribed = (track: LocalTrack) => {
       if (track.kind === TRACK_KIND_VIDEO) {
         setVideoTracks((prevVideoTracks) =>
@@ -64,45 +69,49 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
       }
     };
 
-    // Attach event listeners to the participant
+    // Register event listeners
     participant.on("trackSubscribed", trackSubscribed);
     participant.on("trackUnsubscribed", trackUnsubscribed);
 
-    // Cleanup function
+    // Cleanup event listeners on component unmount
     return () => {
+      participant.off("trackSubscribed", trackSubscribed);
+      participant.off("trackUnsubscribed", trackUnsubscribed);
       setVideoTracks([]);
       setAudioTracks([]);
-      participant.removeAllListeners();
     };
-  }, [participant, setVideoTracks, setAudioTracks]);
+  }, [participant]);
 
-  // useEffect to handle video track attachment and detachment
+  // Effect to handle video track attachment and detachment
   useEffect(() => {
     const videoTrack = videoTracks[0];
     if (videoTrack && videoRef.current) {
       if (videoTrack.kind === TRACK_KIND_VIDEO) {
         videoTrack.attach(videoRef.current);
         return () => {
-          videoTrack.detach();
+          if (videoRef.current) {
+            videoTrack.detach(videoRef.current);
+          }
         };
       }
     }
   }, [videoTracks]);
 
-  // useEffect to handle audio track attachment and detachment
+  // Effect to handle audio track attachment and detachment
   useEffect(() => {
     const audioTrack = audioTracks[0];
     if (audioTrack && audioRef.current) {
       if (audioTrack.kind === TRACK_KIND_AUDIO) {
         audioTrack.attach(audioRef.current);
         return () => {
-          audioTrack.detach();
+          if (audioRef.current) {
+            audioTrack.detach(audioRef.current);
+          }
         };
       }
     }
   }, [audioTracks]);
 
-  // Render the participant component and styled components
   return (
     <ParticipantContainer>
       <ParticipantHeading3>{participant.identity}</ParticipantHeading3>
@@ -110,11 +119,6 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
       <audio ref={audioRef} autoPlay={true} muted={false} />
     </ParticipantContainer>
   );
-};
-
-// PropTypes validation for the component props
-Participant.propTypes = {
-  participant: PropTypes.instanceOf(RemoteParticipant).isRequired,
 };
 
 export default Participant;

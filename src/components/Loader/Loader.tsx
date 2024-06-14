@@ -1,5 +1,5 @@
-import React from 'react';
-import { LoaderContainer, Spinner } from './Loader.style';
+import React from "react";
+import { LoaderContainer, Spinner } from "./Loader.style";
 
 const Loader: React.FC = () => {
   return (

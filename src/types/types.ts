@@ -1,4 +1,4 @@
-import { FormEvent } from 'react';
+import { FormEvent } from "react";
 import {
   Room,
   LocalTrack,
@@ -11,9 +11,9 @@ import {
   LocalParticipant,
 } from "twilio-video";
 import {
-    LocalParticipant as TwilioLocalParticipant,
-    RemoteParticipant as TwilioRemoteParticipant,
-  } from "twilio-video";
+  LocalParticipant as TwilioLocalParticipant,
+  RemoteParticipant as TwilioRemoteParticipant,
+} from "twilio-video";
 
 // Creating interface for the props of the component
 export interface FormProps {
@@ -45,19 +45,22 @@ export interface CustomBeforeUnloadEvent extends Event {
 
 // Participant component
 export interface ParticipantProps {
-    participant: RemoteParticipant | LocalParticipant;
-  }
-  
-export type ParticipantTrackPublication = LocalTrackPublication | RemoteTrackPublication;
-  
+  participant: RemoteParticipant | LocalParticipant;
+}
+
+export type ParticipantTrackPublication =
+  | LocalTrackPublication
+  | RemoteTrackPublication;
+
 export type TrackType = LocalTrack | RemoteTrack;
 
 // Room component
 export interface RoomProps {
-    roomName: string;
-    room?: Room|null;
-    handleLogout: () => void;
-  }
-  
-export type TwilioParticipant = TwilioLocalParticipant | TwilioRemoteParticipant;
-  
+  roomName: string;
+  room?: Room | null;
+  handleLogout: () => void;
+}
+
+export type TwilioParticipant =
+  | TwilioLocalParticipant
+  | TwilioRemoteParticipant;

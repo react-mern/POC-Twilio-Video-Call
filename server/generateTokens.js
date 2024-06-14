@@ -4,6 +4,10 @@ const { VideoGrant } = AccessToken;
 
 // Function to generate Twilio access token
 const generateToken = (config, identity) => {
+  if (!identity) {
+    throw new Error('identity is required to be specified in options');
+  }
+  
   const token = new AccessToken(
     config.twilio.accountSid,
     config.twilio.apiKey,
@@ -21,9 +25,13 @@ const generateToken = (config, identity) => {
 
 // Function to generate Twilio video token
 const videoToken = (identity, room, config) => {
+  if (!identity) {
+    throw new Error('Identity is required for generating token');
+  }
+  
   let videoGrant;
   // Checking if room is provided
-  if (typeof room !== "undefined") {
+  if (room) {
     videoGrant = new VideoGrant({ room });
   } else {
     videoGrant = new VideoGrant();
@@ -33,7 +41,6 @@ const videoToken = (identity, room, config) => {
   const token = generateToken(config, identity);
   // Adding video grant to the token
   token.addGrant(videoGrant);
-  token.identity = identity;
 
   return token;
 };

@@ -43,16 +43,34 @@ const sendTokenResponse = (token, res) => {
 app.get('/video/token', (req, res) => {
   const identity = req.query.identity;
   const room = req.query.room;
-  const token = videoToken(identity, room, config);
-  sendTokenResponse(token, res);
+  console.log(`Received GET request with identity: ${identity} and room: ${room}`);
+  if (!identity) {
+    res.status(400).send({ error: 'Identity is required for generating token' });
+    return;
+  }
+  try {
+    const token = videoToken(identity, room, config);
+    sendTokenResponse(token, res);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
 });
 
 // Route to generate token for POST request
 app.post('/video/token', (req, res) => {
   const identity = req.body.identity;
   const room = req.body.room;
-  const token = videoToken(identity, room, config);
-  sendTokenResponse(token, res);
+  console.log(`Received POST request with identity: ${identity} and room: ${room}`);
+  if (!identity) {
+    res.status(400).send({ error: 'Identity is required for generating token' });
+    return;
+  }
+  try {
+    const token = videoToken(identity, room, config);
+    sendTokenResponse(token, res);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
 });
 
 app.listen(PORT, () =>

@@ -29,7 +29,7 @@ const Form: React.FC<FormProps> = ({
           id="field"
           value={userName}
           onChange={handleUserNameChange}
-          readOnly={connecting}
+          disabled={connecting}
           required
         />
       </FormInputWrapper>
@@ -42,7 +42,7 @@ const Form: React.FC<FormProps> = ({
           id="room"
           value={roomName}
           onChange={handleRoomNameChange}
-          readOnly={connecting}
+          disabled={connecting}
           required
         />
       </FormInputWrapper>

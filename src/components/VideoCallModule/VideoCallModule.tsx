@@ -128,11 +128,21 @@ const VideoCallModule: React.FC = () => {
    */
   const handleSubmit = useCallback(
     async (event: React.FormEvent) => {
-      event.preventDefault();
-      connectToRoom(state.userName, state.roomName);
+      event.preventDefault(); // Prevent default form submission
+  
+      if (state.userName && state.roomName) {
+        connectToRoom(state.userName, state.roomName);
+      }
     },
     [state.userName, state.roomName, connectToRoom]
   );
+  // const handleSubmit = useCallback(
+  //   async (event: React.FormEvent) => {
+  //     event.preventDefault();
+  //     connectToRoom(state.userName, state.roomName);
+  //   },
+  //   [state.userName, state.roomName, connectToRoom]
+  // );
 
   /**
    * @function handleLogout

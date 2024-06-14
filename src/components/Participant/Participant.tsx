@@ -17,7 +17,7 @@ const Participant: React.FC<ParticipantProps> = ({ participant }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-    /**
+  /**
    * @function trackpubsToTracks
    * @description Converts a map of track publications to an array of tracks
    * @param {Map<string, ParticipantTrackPublication>} trackMap - The map of track publications

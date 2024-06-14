@@ -45,7 +45,7 @@ To use Twilio Video, you need to configure your Twilio account and set up the ne
 #### 1. Clone the Repository
 
 ```
-git clone https://github.com/anjali-sim/Twilio-Video-Call.git
+git clone https://github.com/react-mern/POC-Twilio-Video-Call.git
 ```
 
 #### 2. Install dependencies for frontend as well as backend in their specific folders
